@@ -1,25 +1,25 @@
 # Sundown
 
-Remote parental controls for Linux. Manage your child's screen time from your phone.
+Remote parental controls for Linux. Manage your child's screen time from any device.
 
 Sundown is a lightweight daemon that sits on top of [timekpr-next](https://launchpad.net/timekpr-next) and gives parents a mobile-friendly web interface to monitor and control their child's computer time — without needing to be at the computer.
 
 ## Features
 
 - **View time remaining** — see how much screen time your child has left today
-- **Grant or remove time** — reward extra time or cut it short, from your phone
+- **Grant or remove time** — reward extra time or cut it short, from any device
 - **Lock / unlock** — immediately lock the computer or restore access
 - **Per-day limits** — set different time limits for each day of the week
 - **Allowed hours** — define which hours of the day the computer can be used
 - **Weekly & monthly limits** — cap total usage across longer periods
 - **Lockout behavior** — choose what happens when time runs out (lock screen, suspend, terminate session, shut down)
-- **QR pairing** — scan a QR code to connect your phone, no manual setup
+- **QR pairing** — scan a QR code to connect your device, no manual setup
 - **No cloud, no account** — everything runs locally on your home network
 
 ## How It Works
 
 ```
-Your phone (browser)  <──WiFi──>  sundown-daemon (child's PC)
+Parent's device (browser)  <──WiFi──>  sundown-daemon (child's PC)
                                       │
                                       └─ D-Bus ──> timekpr-next
 ```
@@ -28,7 +28,19 @@ Sundown installs alongside timekpr-next on the child's Linux computer. It talks 
 
 ## Install
 
-One command installs everything (timekpr-next + sundown):
+### Quick install (no Rust required)
+
+One command installs everything — timekpr-next, the sundown daemon, and the systemd service:
+
+```bash
+curl -sL https://raw.githubusercontent.com/psuede/sundown/main/packaging/install.sh | sudo bash
+```
+
+This downloads a pre-built binary from GitHub Releases. No build tools needed.
+
+### Install from source
+
+If you prefer to build from source, or want to make changes:
 
 ```bash
 git clone https://github.com/psuede/sundown.git
@@ -36,23 +48,30 @@ cd sundown
 sudo ./packaging/install.sh
 ```
 
-The installer will:
+This requires the [Rust toolchain](https://rustup.rs/).
 
-1. Install timekpr-next if not already present
-2. Build and install the sundown daemon
-3. Ask which user account to control
-4. Offer to open the firewall port
-5. Start the service and display a QR code
+### What the installer does
 
-Scan the QR code with your phone to connect.
+1. Installs timekpr-next if not already present
+2. Installs the sundown daemon (downloads binary or builds from source)
+3. Asks which user account to control
+4. Offers to open the firewall port for local network access
+5. Starts the service and displays a QR code
+
+Scan the QR code with your device to connect.
 
 ### Requirements
 
 - Linux (Ubuntu, Debian, Mint, Pop!_OS, Arch, Manjaro)
 - systemd
-- Rust toolchain (for building from source — `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`)
 
 ### Uninstall
+
+```bash
+curl -sL https://raw.githubusercontent.com/psuede/sundown/main/packaging/install.sh | sudo bash -s -- --uninstall
+```
+
+Or if you have the repo cloned:
 
 ```bash
 sudo ./packaging/install.sh --uninstall
