@@ -11,7 +11,11 @@ use std::sync::Arc;
 const INDEX_HTML: &str = include_str!("../static/index.html");
 
 #[derive(Parser)]
-#[command(name = "sundown-daemon", version, about = "Remote parental control for timekpr-next")]
+#[command(
+    name = "sundown-daemon",
+    version,
+    about = "Remote parental control for timekpr-next"
+)]
 struct Cli {
     /// Path to config file
     #[arg(short, long, default_value = "/etc/sundown/config.toml")]
@@ -46,7 +50,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config::Config::load(&cli.config)?
     } else {
         let config = config::Config::default_for(&cli.config);
-        tracing::info!("no config found, creating default at {}", cli.config.display());
+        tracing::info!(
+            "no config found, creating default at {}",
+            cli.config.display()
+        );
         config.save(&cli.config)?;
         config
     };
@@ -105,19 +112,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .route("/api/time", web::post().to(api::adjust_time))
             .route("/api/limits/daily", web::post().to(api::set_limits))
             .route("/api/limits/weekly", web::post().to(api::set_weekly_limit))
-            .route("/api/limits/monthly", web::post().to(api::set_monthly_limit))
+            .route(
+                "/api/limits/monthly",
+                web::post().to(api::set_monthly_limit),
+            )
             .route("/api/allowed-days", web::post().to(api::set_allowed_days))
             .route("/api/allowed-hours", web::post().to(api::set_allowed_hours))
-            .route("/api/track-inactive", web::post().to(api::set_track_inactive))
+            .route(
+                "/api/track-inactive",
+                web::post().to(api::set_track_inactive),
+            )
             .route("/api/hide-tray", web::post().to(api::set_hide_tray_icon))
             .route("/api/lockout-type", web::post().to(api::set_lockout_type))
             .route("/api/lock", web::post().to(api::lock_user))
             .route("/api/unlock", web::post().to(api::unlock_user))
-            .route("/", web::get().to(|| async {
-                HttpResponse::Ok()
-                    .content_type("text/html; charset=utf-8")
-                    .body(INDEX_HTML)
-            }))
+            .route(
+                "/",
+                web::get().to(|| async {
+                    HttpResponse::Ok()
+                        .content_type("text/html; charset=utf-8")
+                        .body(INDEX_HTML)
+                }),
+            )
     })
     .bind(&bind_addr)?
     .run()

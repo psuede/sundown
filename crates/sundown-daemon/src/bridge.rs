@@ -133,7 +133,10 @@ impl TimekprBridge {
 
         // Return signature is isa{sv}
         // Try to deserialize; if the dict fails, log the raw body
-        match reply.body().deserialize::<(i32, String, HashMap<String, OwnedValue>)>() {
+        match reply
+            .body()
+            .deserialize::<(i32, String, HashMap<String, OwnedValue>)>()
+        {
             Ok((code, msg, data)) => {
                 if code != 0 {
                     return Err(format!("timekpr error: {msg}").into());
@@ -148,9 +151,15 @@ impl TimekprBridge {
 
                 // Fall back: try parsing the string field which contains semicolon-delimited data
                 let (code, msg): (i32, String) = reply.body().deserialize()?;
-                tracing::debug!("getUserInformation fallback: code={code}, msg_len={}", msg.len());
+                tracing::debug!(
+                    "getUserInformation fallback: code={code}, msg_len={}",
+                    msg.len()
+                );
                 if !msg.is_empty() {
-                    tracing::debug!("getUserInformation raw msg (first 500): {}", &msg[..msg.len().min(500)]);
+                    tracing::debug!(
+                        "getUserInformation raw msg (first 500): {}",
+                        &msg[..msg.len().min(500)]
+                    );
                 }
                 // Return empty map, caller will use defaults
                 Ok(HashMap::new())
@@ -202,18 +211,23 @@ impl TimekprBridge {
             .and_then(|v| {
                 let val = v.downcast_ref().ok()?;
                 if let zvariant::Value::Array(arr) = val {
-                    let result: Vec<i64> = arr.iter()
+                    let result: Vec<i64> = arr
+                        .iter()
                         .filter_map(|item| {
                             if let Ok(n) = <i32 as TryFrom<&zvariant::Value<'_>>>::try_from(item) {
                                 Some(n as i64)
-                            } else if let Ok(n) = <i64 as TryFrom<&zvariant::Value<'_>>>::try_from(item) {
+                            } else if let Ok(n) =
+                                <i64 as TryFrom<&zvariant::Value<'_>>>::try_from(item)
+                            {
                                 Some(n)
                             } else {
                                 None
                             }
                         })
                         .collect();
-                    if !result.is_empty() { return Some(result); }
+                    if !result.is_empty() {
+                        return Some(result);
+                    }
                 }
                 None
             })
@@ -225,14 +239,17 @@ impl TimekprBridge {
             .and_then(|v| {
                 let val = v.downcast_ref().ok()?;
                 if let zvariant::Value::Array(arr) = val {
-                    let result: Vec<String> = arr.iter()
+                    let result: Vec<String> = arr
+                        .iter()
                         .filter_map(|item| {
                             <&str as TryFrom<&zvariant::Value<'_>>>::try_from(item)
                                 .map(|s| s.to_string())
                                 .ok()
                         })
                         .collect();
-                    if !result.is_empty() { return Some(result); }
+                    if !result.is_empty() {
+                        return Some(result);
+                    }
                 }
                 None
             })
@@ -258,7 +275,10 @@ impl TimekprBridge {
             BridgeInner::DBus { conn } => {
                 let data = Self::call_admin_info(conn, &self.user).await?;
 
-                tracing::debug!("getUserInformation keys: {:?}", data.keys().collect::<Vec<_>>());
+                tracing::debug!(
+                    "getUserInformation keys: {:?}",
+                    data.keys().collect::<Vec<_>>()
+                );
 
                 let time_left_raw = Self::extract_i64(&data, "TIME_LEFT_DAY");
                 let time_spent_day = Self::extract_i64(&data, "TIME_SPENT_DAY");
@@ -277,7 +297,9 @@ impl TimekprBridge {
                     // Unix epoch (1970-01-01) was a Thursday (day 3, 0-indexed from Monday)
                     ((now / 86400 + 3) % 7) as usize
                 };
-                let limit_day = daily_limits.get(today_idx).copied()
+                let limit_day = daily_limits
+                    .get(today_idx)
+                    .copied()
                     .unwrap_or_else(|| daily_limits.first().copied().unwrap_or(0));
 
                 // TIME_LEFT_DAY is 0 when user has no active session.
@@ -338,7 +360,9 @@ impl TimekprBridge {
 
                 // ALLOWED_WEEKDAYS: array of i32 (day numbers 1-7)
                 let allowed_days: Vec<u8> = Self::extract_i32_array(&data, "ALLOWED_WEEKDAYS")
-                    .iter().map(|&d| d as u8).collect();
+                    .iter()
+                    .map(|&d| d as u8)
+                    .collect();
 
                 // LIMITS_PER_WEEKDAYS: array of i32 (seconds per day)
                 let daily_limits = Self::extract_i32_array(&data, "LIMITS_PER_WEEKDAYS");
@@ -383,7 +407,11 @@ impl TimekprBridge {
             BridgeInner::Mock(state) => {
                 let mut s = state.lock().await;
                 s.time_remaining += seconds;
-                tracing::info!("mock: granted {}s, remaining: {}s", seconds, s.time_remaining);
+                tracing::info!(
+                    "mock: granted {}s, remaining: {}s",
+                    seconds,
+                    s.time_remaining
+                );
                 Ok(())
             }
             BridgeInner::DBus { conn } => {
@@ -398,7 +426,11 @@ impl TimekprBridge {
             BridgeInner::Mock(state) => {
                 let mut s = state.lock().await;
                 s.time_remaining = (s.time_remaining - seconds).max(0);
-                tracing::info!("mock: subtracted {}s, remaining: {}s", seconds, s.time_remaining);
+                tracing::info!(
+                    "mock: subtracted {}s, remaining: {}s",
+                    seconds,
+                    s.time_remaining
+                );
                 Ok(())
             }
             BridgeInner::DBus { conn } => {
@@ -643,12 +675,7 @@ fn parse_allowed_hours(hours_str: &str) -> Vec<HourInterval> {
         let clean = part.trim_start_matches('!');
 
         // Extract hour number (ignore minute ranges for now)
-        let hour: u8 = clean
-            .split('[')
-            .next()
-            .unwrap_or("0")
-            .parse()
-            .unwrap_or(0);
+        let hour: u8 = clean.split('[').next().unwrap_or("0").parse().unwrap_or(0);
 
         match current_start {
             None => {
