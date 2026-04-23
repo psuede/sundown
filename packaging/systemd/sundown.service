@@ -1,0 +1,17 @@
+[Unit]
+Description=Sundown - Remote parental control for timekpr-next
+After=network.target timekpr.service dbus.service
+Requires=dbus.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/sundown-daemon
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
