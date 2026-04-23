@@ -216,12 +216,8 @@ impl TimekprBridge {
                         .filter_map(|item| {
                             if let Ok(n) = <i32 as TryFrom<&zvariant::Value<'_>>>::try_from(item) {
                                 Some(n as i64)
-                            } else if let Ok(n) =
-                                <i64 as TryFrom<&zvariant::Value<'_>>>::try_from(item)
-                            {
-                                Some(n)
                             } else {
-                                None
+                                <i64 as TryFrom<&zvariant::Value<'_>>>::try_from(item).ok()
                             }
                         })
                         .collect();
