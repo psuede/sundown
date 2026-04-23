@@ -9,6 +9,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 const INDEX_HTML: &str = include_str!("../static/index.html");
+const MANIFEST_JSON: &str = include_str!("../static/manifest.json");
+const ICON_SVG: &str = include_str!("../static/icon.svg");
+const SW_JS: &str = include_str!("../static/sw.js");
 
 #[derive(Parser)]
 #[command(
@@ -126,6 +129,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .route("/api/lockout-type", web::post().to(api::set_lockout_type))
             .route("/api/lock", web::post().to(api::lock_user))
             .route("/api/unlock", web::post().to(api::unlock_user))
+            .route(
+                "/manifest.json",
+                web::get().to(|| async {
+                    HttpResponse::Ok()
+                        .content_type("application/json")
+                        .body(MANIFEST_JSON)
+                }),
+            )
+            .route(
+                "/icon.svg",
+                web::get().to(|| async {
+                    HttpResponse::Ok()
+                        .content_type("image/svg+xml")
+                        .body(ICON_SVG)
+                }),
+            )
+            .route(
+                "/sw.js",
+                web::get().to(|| async {
+                    HttpResponse::Ok()
+                        .content_type("application/javascript")
+                        .body(SW_JS)
+                }),
+            )
             .route(
                 "/",
                 web::get().to(|| async {
