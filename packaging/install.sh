@@ -319,7 +319,7 @@ select_child_user() {
     echo ""
 
     while true; do
-        read -rp "  Enter number [1-${#users[@]}]: " choice
+        read -rp "  Enter number [1-${#users[@]}]: " choice < /dev/tty
         if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -ge 1 ]] && [[ "$choice" -le ${#users[@]} ]]; then
             CHILD_USER="${users[$((choice - 1))]}"
             break
@@ -340,7 +340,7 @@ select_child_user() {
         warn "  2. Log in as \"$CHILD_USER\" (even briefly)"
         warn "  3. Log back in as yourself and re-run this installer"
         warn ""
-        read -rp "  Continue anyway? [y/N]: " confirm
+        read -rp "  Continue anyway? [y/N]: " confirm < /dev/tty
         if [[ "${confirm,,}" != "y" ]]; then
             info "aborting — log in as \"$CHILD_USER\" first, then re-run"
             exit 0
@@ -427,7 +427,7 @@ configure_firewall() {
         warn "a firewall (ufw) is active on this system"
         warn "sundown needs port $SUNDOWN_PORT open for your phone to connect"
         echo ""
-        read -rp "  Open port $SUNDOWN_PORT in the firewall? [Y/n]: " choice
+        read -rp "  Open port $SUNDOWN_PORT in the firewall? [Y/n]: " choice < /dev/tty
         choice="${choice:-y}"
 
         if [[ "${choice,,}" == "y" ]]; then
@@ -450,7 +450,7 @@ configure_firewall() {
         warn "a firewall (firewalld) is active on this system"
         warn "sundown needs port $SUNDOWN_PORT open for your phone to connect"
         echo ""
-        read -rp "  Open port $SUNDOWN_PORT in the firewall? [Y/n]: " choice
+        read -rp "  Open port $SUNDOWN_PORT in the firewall? [Y/n]: " choice < /dev/tty
         choice="${choice:-y}"
 
         if [[ "${choice,,}" == "y" ]]; then
