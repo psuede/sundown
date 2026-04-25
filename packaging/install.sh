@@ -502,24 +502,22 @@ main() {
     configure_firewall
 
     echo ""
-    bold "Step 6: pairing"
-    echo ""
-    "$SUNDOWN_BIN" --config "$SUNDOWN_CONFIG" --show-pairing 2>/dev/null || true
-
-    echo ""
     bold "  ✓ Installation complete!"
     echo ""
     info "controlling user: $CHILD_USER"
     info "config: $SUNDOWN_CONFIG"
     echo ""
-    info "next steps:"
-    info "  1. Connect your phone to the same WiFi as this PC"
-    info "  2. Scan the QR code above with your phone camera"
-    echo ""
     info "manage the service:"
     info "  sudo systemctl status sundown"
     info "  sudo systemctl restart sundown"
     info "  sudo journalctl -u sundown -f"
+
+    echo ""
+    bold "Step 6: pairing"
+    echo ""
+    info "Connect your phone to the same WiFi as this PC, then scan:"
+    echo ""
+    "$SUNDOWN_BIN" --config "$SUNDOWN_CONFIG" --show-pairing 2>/dev/null || true
     echo ""
 }
 
